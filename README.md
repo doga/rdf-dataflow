@@ -83,9 +83,7 @@ console.groupEnd();
 Sample output for the code above:
 
 ```text
-step 1 of 1 // RDF dataset to RDF-Dataflow and back.
-
-RDF dataset written as a Dataflow object:
+RDF dataset written as a Dataflow object (content type "application/x-rdf-dataflow+json"):
     {
       "head": {
         "vars": [
