@@ -1,5 +1,5 @@
 <p align="left">
-<a href="https://w3c.github.io/sparql-concepts/spec/" target="_blank" rel="noreferrer"><img src="https://github.com/doga/doga/raw/main/logos/sparql.svg" height="85" alt="SPARQL logo" /></a>
+<a href="https://www.w3.org/TR/rdf12-concepts/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/doga/doga/main/logos/rdf.svg" height="85" alt="RDF logo" /></a>
 </p>
 
 # RDF Dataflow reader/writer
