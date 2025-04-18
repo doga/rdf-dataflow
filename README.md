@@ -24,7 +24,7 @@ Serialise an RDF dataset to an RDF-Dataflow object and read it back.
 </details>
 
 ```javascript
-import { fromDataset, toDataset } from 'https://esm.sh/gh/doga/rdf-dataflow@1.0.1/mod.mjs';
+import { fromDataset, toDataset, contentType } from 'https://esm.sh/gh/doga/rdf-dataflow@1.0.1/mod.mjs';
 import rdf from 'https://esm.sh/gh/rdfjs/dataset@v2.0.2';
 import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
 
@@ -57,7 +57,7 @@ dataflowObject = fromDataset(datasetIn),
 // Read the dataset back from Dataflow.
 datasetOut = toDataset(dataflowObject);
 
-console.group('RDF dataset written as a Dataflow object:');
+console.group(`RDF dataset written as a Dataflow object (content type "${contentType}"):`);
 console.info(JSON.stringify(dataflowObject, null, 2));
 console.groupEnd();
 
