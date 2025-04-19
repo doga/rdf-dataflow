@@ -86,59 +86,57 @@ Sample output for the code above:
 RDF dataset written as a Dataflow object (content type "application/x-rdf-dataflow+json"):
     {
       "head": {
-        "vars": [
+        "terms": [
           "s",
           "p",
           "o",
           "g"
         ]
       },
-      "results": {
-        "bindings": [
-          {
-            "s": {
-              "type": "triple",
-              "value": {
-                "s": {
-                  "type": "uri",
-                  "value": "http://site.example/user123"
-                },
-                "p": {
-                  "type": "uri",
-                  "value": "http://xmlns.com/foaf/0.1/age"
-                },
-                "o": {
-                  "type": "uri",
-                  "value": "23"
-                }
+      "dataset": [
+        {
+          "s": {
+            "type": "quad",
+            "value": {
+              "s": {
+                "type": "uri",
+                "value": "http://site.example/user123"
+              },
+              "p": {
+                "type": "uri",
+                "value": "http://xmlns.com/foaf/0.1/age"
+              },
+              "o": {
+                "type": "uri",
+                "value": "23"
               }
-            },
-            "p": {
-              "type": "uri",
-              "value": "http://site.example/certainty"
-            },
-            "o": {
-              "type": "literal",
-              "value": "0.9",
-              "datatype": "http://www.w3.org/2001/XMLSchema#decimal"
             }
           },
-          {
-            "s": {
-              "type": "uri",
-              "value": "http://site.example/user567"
-            },
-            "p": {
-              "type": "uri",
-              "value": "http://www.w3.org/2006/vcard/ns#hasEmail"
-            },
-            "o": {
-              "type": "uri",
-              "value": "mailto:me@site.example"
-            }
+          "p": {
+            "type": "uri",
+            "value": "http://site.example/certainty"
+          },
+          "o": {
+            "type": "literal",
+            "value": "0.9",
+            "datatype": "http://www.w3.org/2001/XMLSchema#decimal"
           }
-        ]
-      }
+        },
+        {
+          "s": {
+            "type": "uri",
+            "value": "http://site.example/user567"
+          },
+          "p": {
+            "type": "uri",
+            "value": "http://www.w3.org/2006/vcard/ns#hasEmail"
+          },
+          "o": {
+            "type": "uri",
+            "value": "mailto:me@site.example"
+          }
+        }
+      ]
     }
 
 RDF dataset read from the Dataflow object:
