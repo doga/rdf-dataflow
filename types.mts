@@ -10,22 +10,19 @@ type Head = {
 };
 
 type Results = {
-  bindings: Binding[]
+  bindings: QuadValue[]
 };
 
-type Binding = TripleValue & {
-  g?: NamedNode | BlankNode
+type Quad = {
+  type: 'quad',
+  value: QuadValue
 };
 
-type Triple = {
-  type: 'triple',
-  value: TripleValue
-};
-
-type TripleValue = {
-  s: Triple | NamedNode | BlankNode,
+type QuadValue = {
+  s: Quad | NamedNode | BlankNode,
   p: NamedNode,
   o: NamedNode | BlankNode | Literal,
+  g?: NamedNode | BlankNode
 };
 
 type NamedNode = {
@@ -50,4 +47,4 @@ type AnnotatedLiteral = BareLiteral & (
   {datatype: string} // IRI
 );
 
-export type { Dataflow, Binding, rdf };
+export type { Dataflow, rdf };
