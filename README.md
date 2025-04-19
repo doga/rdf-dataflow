@@ -28,7 +28,7 @@ import { fromDataset, toDataset, contentType } from 'https://esm.sh/gh/doga/rdf-
 import rdf from 'https://esm.sh/gh/rdfjs/dataset@v2.0.2';
 import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
 
-// Create the in-memory RDF dataset.
+// Create an in-memory RDF dataset.
 const
 datasetIn = rdf.dataset(),
 
