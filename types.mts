@@ -2,15 +2,11 @@ import type * as rdf from './lib/pulled-in/rdfjs/types@v2.0.1/index.d.ts';
 
 type Dataflow = {
   head   : Head,
-  results: Results,
+  dataset: QuadValue[],
 };
 
 type Head = {
-  vars: ['s','p','o','g']
-};
-
-type Results = {
-  bindings: QuadValue[]
+  terms: ['s','p','o','g']
 };
 
 type Quad = {
