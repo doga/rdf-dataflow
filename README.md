@@ -24,7 +24,7 @@ Serialise an RDF dataset to an RDF-Dataflow object and read it back.
 </details>
 
 ```javascript
-import { fromDataset, toDataset, contentType } from 'https://esm.sh/gh/doga/rdf-dataflow@1.1.1/mod.mjs';
+import { fromDataset, toDataset, contentType } from 'https://esm.sh/gh/doga/rdf-dataflow@1.1.2/mod.mjs';
 import rdf from 'https://esm.sh/gh/rdfjs/dataset@v2.0.2';
 import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
 
