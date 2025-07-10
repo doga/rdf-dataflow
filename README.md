@@ -6,7 +6,7 @@
 
 This JavaScript library introduces:
 
-1. A new [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
+1. A new JSON-based [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
 1. A serialiser and a deserialiser for RDF Dataflow documents. These functions can run on any JavaScript runtime, both in web browsers and outside of them.
 
 ## An open format
