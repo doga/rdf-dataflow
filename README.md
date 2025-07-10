@@ -11,9 +11,11 @@ This JavaScript library introduces:
 
 ## An open format
 
-RDF Dataflow is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime.
+RDF Dataflow is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime:
 
-The `types.mts` file contains a formal definition of this format, which has the content type `application/x-rdf-dataflow+json`.
+- The `types.mts` file contains a formal definition of this format.
+- The content type of this format is `application/x-rdf-dataflow+json`.
+- The file extension of this format is `.rdfdataflow.json`.
 
 ## When does `RDF Dataflow` make sense as an RDF serialisation format over other formats?
 
@@ -45,8 +47,9 @@ Serialise an RDF dataset to an RDF-Dataflow object and read it back.
 
 ```javascript
 import { 
-  toDataset, fromDataset, emptyDataset, emptyDataflow, contentType 
-} from 'https://esm.sh/gh/doga/rdf-dataflow@1.2.0/mod.mjs';
+  toDataset, fromDataset, contentType, fileExtension,
+  emptyDataset, emptyDataflow
+} from 'https://esm.sh/gh/doga/rdf-dataflow@1.2.1/mod.mjs';
 
 import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
 
@@ -56,21 +59,39 @@ datasetIn = emptyDataset(),
 
 // RDF statement #1
 subject1   = t.quad(
-  t.namedNode('http://site.example/user123'),
+  t.namedNode('http://site.example/user/123'),
   t.namedNode('http://xmlns.com/foaf/0.1/age'),
-  t.namedNode('23', t.namedNode('http://www.w3.org/2001/XMLSchema#integer'))
+  t.literal('23', t.namedNode('http://www.w3.org/2001/XMLSchema#integer'))
 ),
 predicate1 = t.namedNode('http://site.example/certainty'),
 object1    = t.literal('0.9', t.namedNode('http://www.w3.org/2001/XMLSchema#decimal')),
 
 // RDF statement #2
-subject2   = t.namedNode('http://site.example/user567'),
+subject2   = t.namedNode('http://site.example/user/567'),
 predicate2 = t.namedNode('http://www.w3.org/2006/vcard/ns#hasEmail'),
-object2    = t.namedNode('mailto:me@site.example');
+object2    = t.namedNode('mailto:me@site.example'),
+
+// RDF statement #3
+subject3   = t.namedNode('http://site.example/product/1'),
+predicate3 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+object3    = t.literal('A product', 'en'),
+
+// RDF statement #4
+subject4   = t.namedNode('http://site.example/product/1'),
+predicate4 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+object4    = t.literal('Bir ürün'),
+
+// RDF statement #5
+subject5   = t.namedNode('http://site.example/product/1'),
+predicate5 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+object5    = t.literal('منتج', {language: 'ar', direction: 'rtl'});
 
 // Fill up the dataset.
 datasetIn.add(t.quad(subject1, predicate1, object1));
 datasetIn.add(t.quad(subject2, predicate2, object2));
+datasetIn.add(t.quad(subject3, predicate3, object3));
+datasetIn.add(t.quad(subject4, predicate4, object4));
+datasetIn.add(t.quad(subject5, predicate5, object5));
 
 // Produce an RDF Dataflow object from the dataset.
 const
@@ -79,7 +100,10 @@ dataflowObject = fromDataset(datasetIn),
 // Read the dataset back from Dataflow.
 datasetOut = toDataset(dataflowObject);
 
-console.group(`RDF dataset written as a Dataflow object (content type "${contentType}"):`);
+console.info(`Content type:   "${contentType}"`);
+console.info(`File extension: "${fileExtension}"`);
+
+console.group(`RDF dataset written as a Dataflow object:`);
 console.info(JSON.stringify(dataflowObject, null, 2));
 console.groupEnd();
 
@@ -105,74 +129,135 @@ console.groupEnd();
 Sample output for the code above:
 
 ```text
-RDF dataset written as a Dataflow object (content type "application/x-rdf-dataflow+json"):
-    {
-      "head": {
-        "terms": [
-          "s",
-          "p",
-          "o",
-          "g"
-        ]
-      },
-      "dataset": [
-        {
-          "s": {
-            "type": "quad",
-            "value": {
-              "s": {
-                "type": "uri",
-                "value": "http://site.example/user123"
-              },
-              "p": {
-                "type": "uri",
-                "value": "http://xmlns.com/foaf/0.1/age"
-              },
-              "o": {
-                "type": "uri",
-                "value": "23"
-              }
+Content type:   "application/x-rdf-dataflow+json"
+File extension: ".rdfdataflow.json"
+RDF dataset written as a Dataflow object:
+  {
+    "head": {
+      "terms": {
+        "subject": "s",
+        "property": "p",
+        "object": "o",
+        "graph": "g"
+      }
+    },
+    "dataset": [
+      {
+        "s": {
+          "type": "quad",
+          "value": {
+            "s": {
+              "type": "uri",
+              "value": "http://site.example/user/123"
+            },
+            "p": {
+              "type": "uri",
+              "value": "http://xmlns.com/foaf/0.1/age"
+            },
+            "o": {
+              "type": "literal",
+              "value": "23",
+              "datatype": "http://www.w3.org/2001/XMLSchema#integer"
             }
-          },
-          "p": {
-            "type": "uri",
-            "value": "http://site.example/certainty"
-          },
-          "o": {
-            "type": "literal",
-            "value": "0.9",
-            "datatype": "http://www.w3.org/2001/XMLSchema#decimal"
           }
         },
-        {
-          "s": {
-            "type": "uri",
-            "value": "http://site.example/user567"
-          },
-          "p": {
-            "type": "uri",
-            "value": "http://www.w3.org/2006/vcard/ns#hasEmail"
-          },
-          "o": {
-            "type": "uri",
-            "value": "mailto:me@site.example"
-          }
+        "p": {
+          "type": "uri",
+          "value": "http://site.example/certainty"
+        },
+        "o": {
+          "type": "literal",
+          "value": "0.9",
+          "datatype": "http://www.w3.org/2001/XMLSchema#decimal"
         }
-      ]
-    }
+      },
+      {
+        "s": {
+          "type": "uri",
+          "value": "http://site.example/user/567"
+        },
+        "p": {
+          "type": "uri",
+          "value": "http://www.w3.org/2006/vcard/ns#hasEmail"
+        },
+        "o": {
+          "type": "uri",
+          "value": "mailto:me@site.example"
+        }
+      },
+      {
+        "s": {
+          "type": "uri",
+          "value": "http://site.example/product/1"
+        },
+        "p": {
+          "type": "uri",
+          "value": "http://purl.org/dc/elements/1.1/description"
+        },
+        "o": {
+          "type": "literal",
+          "value": "A product",
+          "lang": "en"
+        }
+      },
+      {
+        "s": {
+          "type": "uri",
+          "value": "http://site.example/product/1"
+        },
+        "p": {
+          "type": "uri",
+          "value": "http://purl.org/dc/elements/1.1/description"
+        },
+        "o": {
+          "type": "literal",
+          "value": "Bir ürün",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string"
+        }
+      },
+      {
+        "s": {
+          "type": "uri",
+          "value": "http://site.example/product/1"
+        },
+        "p": {
+          "type": "uri",
+          "value": "http://purl.org/dc/elements/1.1/description"
+        },
+        "o": {
+          "type": "literal",
+          "value": "منتج",
+          "lang": "ar",
+          "dir": "rtl"
+        }
+      }
+    ]
+  }
 
 RDF dataset read from the Dataflow object:
-    Quad:
-        Subject quad:
-            Subject:   http://site.example/user123
-            Predicate: http://xmlns.com/foaf/0.1/age
-            Object:    23
-        Predicate: http://site.example/certainty
-        Object:    0.9
-    Quad:
-        Subject:   http://site.example/user567
-        Predicate: http://www.w3.org/2006/vcard/ns#hasEmail
-        Object:    mailto:me@site.example
+  Quad:
+    Subject quad:
+      Subject:   http://site.example/user/123
+      Predicate: http://xmlns.com/foaf/0.1/age
+      Object:    23
+    Predicate: http://site.example/certainty
+    Object:    0.9
+  Quad:
+    Subject:   http://site.example/user/567
+    Predicate: http://www.w3.org/2006/vcard/ns#hasEmail
+    Object:    mailto:me@site.example
+  Quad:
+    Subject:   http://site.example/product/1
+    Predicate: http://purl.org/dc/elements/1.1/description
+    Object:    A product
+  Quad:
+    Subject:   http://site.example/product/1
+    Predicate: http://purl.org/dc/elements/1.1/description
+    Object:    Bir ürün
+  Quad:
+    Subject:   http://site.example/product/1
+    Predicate: http://purl.org/dc/elements/1.1/description
+    Object:    منتج
 ```
 
 ### Running the usage example
