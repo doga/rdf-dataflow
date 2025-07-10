@@ -136,7 +136,7 @@ RDF dataset written as a Dataflow object:
     "head": {
       "terms": {
         "subject": "s",
-        "property": "p",
+        "predicate": "p",
         "object": "o",
         "graph": "g"
       }
