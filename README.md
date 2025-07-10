@@ -2,14 +2,34 @@
 <a href="https://www.w3.org/TR/rdf12-concepts/" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/doga/doga/main/logos/rdf.svg" height="85" alt="RDF logo" /></a>
 </p>
 
-# RDF Dataflow reader/writer
+# RDF Dataflow
 
-This library introduces a new RDF serialisation format called `RDF Dataflow` that is based on the [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/), but the use case for RDF Dataflow is somewhat different:
+This JavaScript library introduces:
 
-- __RDF Dataflow is only for serialising RDF datasets__, whereas the other format represents any SPARQL query result, including results that that do not contain an RDF dataset, such as `SELECT` results.
-- __RDF Dataflow supports the reification/annotation feature of [RDF 1.2 aka RDF Star](https://www.w3.org/TR/rdf12-concepts/#section-triple-terms-reification)__ where the subject of an RDF statement can be another RDF statement.
+1. A new [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
+1. A serialiser and a deserialiser for RDF Dataflow documents. These functions can run on any JavaScript runtime, both in web browsers and outside of them.
 
-The content type for RDF Dataflow documents is `application/x-rdf-dataflow+json`.
+## An open format
+
+RDF Dataflow is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime.
+
+The `types.mts` file contains a formal definition of this format, which has the content type `application/x-rdf-dataflow+json`.
+
+## When does `RDF Dataflow` make sense as an RDF serialisation format over other formats?
+
+RDF Dataflow is preferable whenever:
+
+- RDF 1.2 support is required.
+- Serialisers and deserialisers should be easy to implement.
+- Document completeness (= non-truncation) should be easy to verify by examining the document contents.
+
+Here is where the other RDF formats are currently falling short:
+
+- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets.
+
+- [JSON-LD](https://www.w3.org/TR/json-ld11/) is a JSON-based format that does not yet support RDF 1.2 (as of July 2025). It is a terse format and writing serialisers and deserialisers is non-trivial. RDF 1.2 support is on their roadmap, which will make the format terser still.
+
+- The following formats make it impossible to ensure that a document hasn't been truncated: [Turtle](https://www.w3.org/TR/rdf12-turtle/), TriG, N-Triples, N-Quads.
 
 ## Usage example
 
