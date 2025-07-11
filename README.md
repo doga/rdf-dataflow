@@ -14,7 +14,7 @@ This JavaScript library introduces:
 RDF Dataflow is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime:
 
 - The `types.mts` file contains a formal definition of this format.
-- The content type of this format is `application/x-rdf-dataflow+json`.
+- The content type of this format is `application/x-rdfdataflow+json`.
 - The file extension of this format is `.rdfdataflow.json`.
 
 ## When does `RDF Dataflow` make sense as an RDF serialisation format over other formats?
@@ -49,7 +49,7 @@ Serialise an RDF dataset to an RDF-Dataflow object and read it back.
 import { 
   toDataset, fromDataset, contentType, fileExtension,
   emptyDataset, emptyDataflow
-} from 'https://esm.sh/gh/doga/rdf-dataflow@1.2.1/mod.mjs';
+} from 'https://esm.sh/gh/doga/rdf-dataflow@1.2.2/mod.mjs';
 
 import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
 
@@ -129,7 +129,7 @@ console.groupEnd();
 Sample output for the code above:
 
 ```text
-Content type:   "application/x-rdf-dataflow+json"
+Content type:   "application/x-rdfdataflow+json"
 File extension: ".rdfdataflow.json"
 RDF dataset written as a Dataflow object:
   {
