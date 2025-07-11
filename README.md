@@ -11,15 +11,15 @@ This JavaScript library introduces:
 
 ## An open format
 
-RDF Dataflow is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime:
+`RDF Dataflow` is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime:
 
 - The `types.mts` file contains a description of this format.
 - The content type of this format is `application/x-rdfdataflow+json`.
-- The file extension of this format is `.rdfdataflow.json`.
+- The file extension for this format is `.rdfdataflow.json`.
 
 ## When does `RDF Dataflow` make sense as an RDF serialisation format over other formats?
 
-RDF Dataflow is preferable whenever:
+`RDF Dataflow` is preferable whenever:
 
 - RDF 1.2 support is required.
 - Serialisers and deserialisers should be easy to implement.
@@ -27,11 +27,13 @@ RDF Dataflow is preferable whenever:
 
 Here is where the other RDF formats are currently falling short:
 
-- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets.
+- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets. `RDF Dataflow` derives from this format.
 
-- [JSON-LD](https://www.w3.org/TR/json-ld11/) is a JSON-based format that does not yet support RDF 1.2 (as of July 2025). This is a terse format for which writing serialisers and deserialisers is non-trivial. RDF 1.2 support is on their roadmap, which will make this format terser still.
+- [JSON-LD](https://www.w3.org/TR/json-ld11/) is another JSON-based format but it does not yet support RDF 1.2 (as of July 2025). This is a terse format and writing serialisers and deserialisers for it is non-trivial. RDF 1.2 support is on their roadmap, which will make this format terser still.
 
-- [Turtle](https://www.w3.org/TR/rdf12-turtle/), [TriG](https://www.w3.org/TR/rdf12-trig/), [N-Quads](https://www.w3.org/TR/rdf12-n-quads/) and [N-Triples](https://w3c.github.io/rdf-n-triples/spec/) support RDF 1.2 but they make it impossible to ensure that a document hasn't been truncated.
+- [Turtle](https://www.w3.org/TR/rdf12-turtle/) and [TriG](https://www.w3.org/TR/rdf12-trig/) support RDF 1.2, but  writing serialisers and deserialisers for those formats is non-trivial, and they make it impossible to ensure that a document hasn't been truncated.
+
+- [N-Quads](https://www.w3.org/TR/rdf12-n-quads/) and [N-Triples](https://w3c.github.io/rdf-n-triples/spec/) support RDF 1.2 and writing serialisers and deserialisers for those formats is about as simple as `RDF Dataflow`, but these formats make it impossible to ensure that a document hasn't been truncated.
 
 ## Usage example
 
