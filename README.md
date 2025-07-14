@@ -134,6 +134,9 @@ Sample output for the code above:
 Content type:   "application/x-rdfdataflow+json"
 File extension: ".rdfdataflow.json"
 RDF dataset written as a Dataflow object:
+```
+
+```json
   {
     "head": {
       "terms": {
@@ -235,7 +238,9 @@ RDF dataset written as a Dataflow object:
       }
     ]
   }
+```
 
+```text
 RDF dataset read from the Dataflow object:
   Quad:
     Subject quad:
