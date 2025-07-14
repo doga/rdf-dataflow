@@ -6,8 +6,8 @@
 
 This JavaScript library introduces:
 
-1. A new JSON-based [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
-1. A serialiser and a deserialiser for RDF Dataflow documents. These functions can run on any JavaScript runtime, both in web browsers and outside of them.
+1. A JSON-based [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
+1. A serialiser and a deserialiser for `RDF Dataflow` documents. These functions can run on any JavaScript runtime, both in web browsers and outside of them.
 
 ## An open format
 
@@ -25,11 +25,11 @@ This JavaScript library introduces:
 - Serialisers and deserialisers should be easy to implement.
 - Document completeness (= non-truncation) should be easy to verify by examining the document contents.
 
-Here is where the other RDF formats are currently falling short:
+Where the other RDF formats are currently falling short:
 
-- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets. `RDF Dataflow` derives from this format.
+- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets. `RDF Dataflow` is derived from this format.
 
-- [JSON-LD](https://www.w3.org/TR/json-ld11/) is another JSON-based format but it does not yet support RDF 1.2 (as of July 2025). This is a terse format and writing serialisers and deserialisers for it is non-trivial. RDF 1.2 support is on their roadmap, which will make this format terser still.
+- [JSON-LD](https://www.w3.org/TR/json-ld11/) is another JSON-based format but it does not yet support RDF 1.2 (as of July 2025). This is a terse format and writing serialisers and deserialisers for it is a non-trivial task. RDF 1.2 support is on their roadmap, which will make this format terser still.
 
 - [Turtle](https://www.w3.org/TR/rdf12-turtle/) and [TriG](https://www.w3.org/TR/rdf12-trig/) support RDF 1.2, but  writing serialisers and deserialisers for those formats is non-trivial, and they make it impossible to ensure that a document hasn't been truncated.
 
