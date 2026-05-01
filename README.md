@@ -73,9 +73,10 @@ displayDataset = dataset => {
   }
   console.groupEnd();
 },
-dataset = datasetFactory.dataset(),
 
-// Import Turtle data into dataset.
+
+// Create an in-memory RDF dataset, and import Turtle data into the dataset.
+dataset    = datasetFactory.dataset(),
 turtleData = `
   # "<https://site.example/xyz>'s name is Xyz."
   PREFIX ex: <https://site.example/>
@@ -97,109 +98,72 @@ dataset.add(dataFactory.quad( // "<https://site.example/xyz>'s name is Xyz since
   dataFactory.namedNode('https://site.example/since'),
   dataFactory.literal('1999-12-25', dataFactory.namedNode('http://www.w3.org/2001/XMLSchema#date'))
 ));
-
 displayDataset(dataset);
 
-const 
-message = DataflowMessage.fromRDF(
-  dataset, 
+
+// Build a Dataflow message containing a dataset.
+const message = DataflowMessage.fromRDF(
+  dataset,
   {
     prefixes: {
       ex    : 'https://site.example/',
       schema: 'https://schema.org/',
       xsd   : 'http://www.w3.org/2001/XMLSchema#'
+    }
+  }
+);
+message.print();
+console.info(JSON.stringify(message.toObject(), null, 2));
+
+const
+/**
+ * An RDF dataset read from a Dataflow message.
+ * @type {Object} A DatasetCore object.
+ * @see {@link https://rdf.js.org/dataset-spec/#datasetcore-interface | DatasetCore}
+ **/
+rdfDataset = message.toRDF();
+
+
+// Build a Dataflow message containing prose.
+const message2 = DataflowMessage.fromRDF(
+  // In prose, the order and repetition of statements are significant
+  [ 
+    // <https://site.example/jimbo>'s name is Jim Bo.
+    dataFactory.quad(
+      dataFactory.namedNode('https://site.example/jimbo'),
+      dataFactory.namedNode('http://xmlns.com/foaf/0.1/name'),
+      dataFactory.literal('Jim Bo')
+    ),
+
+    // <https://site.example/jimbo>'s mailbox is "mailto:jim.bo@site.example".
+    dataFactory.quad(
+      dataFactory.namedNode('https://site.example/jimbo'),
+      dataFactory.namedNode('http://xmlns.com/foaf/0.1/mbox'),
+      dataFactory.literal(
+        'mailto:jim.bo@site.example', 
+        dataFactory.namedNode('http://www.w3.org/2001/XMLSchema#anyURI')
+      )
+    ),
+  ], 
+  {
+    prefixes: {
+      ex  : 'https://site.example/',
+      foaf: 'http://xmlns.com/foaf/0.1/',
+      xsd : 'http://www.w3.org/2001/XMLSchema#',
     },
     isProse: true
   }
 );
-
-message.print();
+message2.print();
+console.info(JSON.stringify(message2.toObject(), null, 2));
 
 const
-messageObject = message.toObject();
-
-console.info(JSON.stringify(messageObject, null, 2))
-
-// messageObject = message.toObject(),
-// message2      = DataflowMessage.fromObject(messageObject),
-// dataset2      = message2.toRDF(),
-// statements    = message2.statements;
-
-// displayDataset(dataset2);
-
-
-
-// // Create an in-memory RDF dataset.
-// const
-// datasetIn = emptyDataset(),
-
-// // RDF statement #1
-// subject1   = t.quad(
-//   t.namedNode('http://site.example/user/123'),
-//   t.namedNode('http://xmlns.com/foaf/0.1/age'),
-//   t.literal('23', t.namedNode('http://www.w3.org/2001/XMLSchema#integer'))
-// ),
-// predicate1 = t.namedNode('http://site.example/certainty'),
-// object1    = t.literal('0.9', t.namedNode('http://www.w3.org/2001/XMLSchema#decimal')),
-
-// // RDF statement #2
-// subject2   = t.namedNode('http://site.example/user/567'),
-// predicate2 = t.namedNode('http://www.w3.org/2006/vcard/ns#hasEmail'),
-// object2    = t.namedNode('mailto:me@site.example'),
-
-// // RDF statement #3
-// subject3   = t.namedNode('http://site.example/product/1'),
-// predicate3 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-// object3    = t.literal('A product', 'en'),
-
-// // RDF statement #4
-// subject4   = t.namedNode('http://site.example/product/1'),
-// predicate4 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-// object4    = t.literal('Bir ürün'),
-
-// // RDF statement #5
-// subject5   = t.namedNode('http://site.example/product/1'),
-// predicate5 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-// object5    = t.literal('منتج', {language: 'ar', direction: 'rtl'});
-
-// // Fill up the dataset.
-// datasetIn.add(t.quad(subject1, predicate1, object1));
-// datasetIn.add(t.quad(subject2, predicate2, object2));
-// datasetIn.add(t.quad(subject3, predicate3, object3));
-// datasetIn.add(t.quad(subject4, predicate4, object4));
-// datasetIn.add(t.quad(subject5, predicate5, object5));
-
-// // Produce an RDF Dataflow object from the dataset.
-// const
-// dataflowObject = fromDataset(datasetIn),
-
-// // Read the dataset back from Dataflow.
-// datasetOut = toDataset(dataflowObject);
-
-// console.info(`Content type:   "${contentType}"`);
-// console.info(`File extension: "${fileExtension}"`);
-
-// console.group(`RDF dataset written as a Dataflow object:`);
-// console.info(JSON.stringify(dataflowObject, null, 2));
-// console.groupEnd();
-
-// console.group('\nRDF dataset read from the Dataflow object:');
-// for (const quad of datasetOut) {
-//   console.group('Quad:');
-//   if(quad.subject.termType === 'Quad') {
-//     console.group('Subject quad:');
-//     console.info(`Subject:   ${quad.subject.subject.value}`)
-//     console.info(`Predicate: ${quad.subject.predicate.value}`)
-//     console.info(`Object:    ${quad.subject.object.value}`)
-//     console.groupEnd();
-//   } else {
-//     console.info(`Subject:   ${quad.subject.value}`)
-//   }
-//   console.info(`Predicate: ${quad.predicate.value}`)
-//   console.info(`Object:    ${quad.object.value}`)
-//   console.groupEnd();
-// }
-// console.groupEnd();
+/**
+ * Prose read from a Dataflow message.
+ * @type {Object[]} An array of quads.
+ * @see {@link https://rdf.js.org/data-model-spec/#quad-interface | Quad}
+ **/
+prose = message2.toRDF();
 ```
 
 Sample output for the code above:
