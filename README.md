@@ -48,84 +48,155 @@ Serialise an RDF dataset to an RDF-Dataflow object and read it back.
 </details>
 
 ```javascript
-import { 
-  toDataset, fromDataset, contentType, fileExtension,
-  emptyDataset, emptyDataflow
-} from 'https://esm.sh/gh/doga/rdf-dataflow@1.2.2/mod.mjs';
+import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
+import {DataflowMessage} from './mod.mjs';
 
-import t from 'https://esm.sh/gh/rdfjs/data-model@v2.1.0';
-
-// Create an in-memory RDF dataset.
 const
-datasetIn = emptyDataset(),
-
-// RDF statement #1
-subject1   = t.quad(
-  t.namedNode('http://site.example/user/123'),
-  t.namedNode('http://xmlns.com/foaf/0.1/age'),
-  t.literal('23', t.namedNode('http://www.w3.org/2001/XMLSchema#integer'))
-),
-predicate1 = t.namedNode('http://site.example/certainty'),
-object1    = t.literal('0.9', t.namedNode('http://www.w3.org/2001/XMLSchema#decimal')),
-
-// RDF statement #2
-subject2   = t.namedNode('http://site.example/user/567'),
-predicate2 = t.namedNode('http://www.w3.org/2006/vcard/ns#hasEmail'),
-object2    = t.namedNode('mailto:me@site.example'),
-
-// RDF statement #3
-subject3   = t.namedNode('http://site.example/product/1'),
-predicate3 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-object3    = t.literal('A product', 'en'),
-
-// RDF statement #4
-subject4   = t.namedNode('http://site.example/product/1'),
-predicate4 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-object4    = t.literal('Bir ürün'),
-
-// RDF statement #5
-subject5   = t.namedNode('http://site.example/product/1'),
-predicate5 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
-object5    = t.literal('منتج', {language: 'ar', direction: 'rtl'});
-
-// Fill up the dataset.
-datasetIn.add(t.quad(subject1, predicate1, object1));
-datasetIn.add(t.quad(subject2, predicate2, object2));
-datasetIn.add(t.quad(subject3, predicate3, object3));
-datasetIn.add(t.quad(subject4, predicate4, object4));
-datasetIn.add(t.quad(subject5, predicate5, object5));
-
-// Produce an RDF Dataflow object from the dataset.
-const
-dataflowObject = fromDataset(datasetIn),
-
-// Read the dataset back from Dataflow.
-datasetOut = toDataset(dataflowObject);
-
-console.info(`Content type:   "${contentType}"`);
-console.info(`File extension: "${fileExtension}"`);
-
-console.group(`RDF dataset written as a Dataflow object:`);
-console.info(JSON.stringify(dataflowObject, null, 2));
-console.groupEnd();
-
-console.group('\nRDF dataset read from the Dataflow object:');
-for (const quad of datasetOut) {
-  console.group('Quad:');
-  if(quad.subject.termType === 'Quad') {
-    console.group('Subject quad:');
-    console.info(`Subject:   ${quad.subject.subject.value}`)
-    console.info(`Predicate: ${quad.subject.predicate.value}`)
-    console.info(`Object:    ${quad.subject.object.value}`)
+datasetFactory = new N3.StoreFactory(),
+dataFactory    = N3.DataFactory,
+displayDataset = dataset => {
+  console.group('\nRDF dataset:');
+  for (const quad of dataset) {
+    console.group('Quad:');
+    if(quad.subject.termType === 'Quad') {
+      console.group('Subject quad:');
+      console.info(`Subject:   ${quad.subject.subject.value}`)
+      console.info(`Predicate: ${quad.subject.predicate.value}`)
+      console.info(`Object:    ${quad.subject.object.value}`)
+      console.groupEnd();
+    } else {
+      console.info(`Subject:   ${quad.subject.value}`)
+    }
+    console.info(`Predicate: ${quad.predicate.value}`)
+    console.info(`Object:    ${quad.object.value}`)
     console.groupEnd();
-  } else {
-    console.info(`Subject:   ${quad.subject.value}`)
   }
-  console.info(`Predicate: ${quad.predicate.value}`)
-  console.info(`Object:    ${quad.object.value}`)
   console.groupEnd();
-}
-console.groupEnd();
+},
+dataset = datasetFactory.dataset(),
+
+// Import Turtle data into dataset.
+turtleData = `
+  # "<https://site.example/xyz>'s name is Xyz."
+  PREFIX ex: <https://site.example/>
+  PREFIX schema: <https://schema.org/>
+  ex:xyz schema:givenName 'Xyz'@tr-TR <urn:my:contacts>. 
+`,
+parser          = new N3.Parser(),
+turtleDataQuads = parser.parse(turtleData);
+
+dataset.addAll(turtleDataQuads);
+
+// Programmatically add quads to the dataset.
+dataset.add(dataFactory.quad( // "<https://site.example/xyz>'s name is Xyz since December 25, 1999."
+  dataFactory.triple(
+    dataFactory.namedNode('https://site.example/xyz'),
+    dataFactory.namedNode('https://schema.org/givenName'),
+    dataFactory.literal('Xyz', 'tr-TR')
+  ),
+  dataFactory.namedNode('https://site.example/since'),
+  dataFactory.literal('1999-12-25', dataFactory.namedNode('http://www.w3.org/2001/XMLSchema#date'))
+));
+
+displayDataset(dataset);
+
+const 
+message = DataflowMessage.fromRDF(
+  dataset, 
+  {
+    prefixes: {
+      ex    : 'https://site.example/',
+      schema: 'https://schema.org/',
+      xsd   : 'http://www.w3.org/2001/XMLSchema#'
+    },
+  }
+);
+
+message.print();
+
+// console.debug(`${message}`);
+
+// messageObject = message.toObject();
+// messageObject = message.toObject(),
+// message2      = DataflowMessage.fromObject(messageObject),
+// dataset2      = message2.toRDF(),
+// statements    = message2.statements;
+
+// displayDataset(dataset2);
+
+
+
+// // Create an in-memory RDF dataset.
+// const
+// datasetIn = emptyDataset(),
+
+// // RDF statement #1
+// subject1   = t.quad(
+//   t.namedNode('http://site.example/user/123'),
+//   t.namedNode('http://xmlns.com/foaf/0.1/age'),
+//   t.literal('23', t.namedNode('http://www.w3.org/2001/XMLSchema#integer'))
+// ),
+// predicate1 = t.namedNode('http://site.example/certainty'),
+// object1    = t.literal('0.9', t.namedNode('http://www.w3.org/2001/XMLSchema#decimal')),
+
+// // RDF statement #2
+// subject2   = t.namedNode('http://site.example/user/567'),
+// predicate2 = t.namedNode('http://www.w3.org/2006/vcard/ns#hasEmail'),
+// object2    = t.namedNode('mailto:me@site.example'),
+
+// // RDF statement #3
+// subject3   = t.namedNode('http://site.example/product/1'),
+// predicate3 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+// object3    = t.literal('A product', 'en'),
+
+// // RDF statement #4
+// subject4   = t.namedNode('http://site.example/product/1'),
+// predicate4 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+// object4    = t.literal('Bir ürün'),
+
+// // RDF statement #5
+// subject5   = t.namedNode('http://site.example/product/1'),
+// predicate5 = t.namedNode('http://purl.org/dc/elements/1.1/description'),
+// object5    = t.literal('منتج', {language: 'ar', direction: 'rtl'});
+
+// // Fill up the dataset.
+// datasetIn.add(t.quad(subject1, predicate1, object1));
+// datasetIn.add(t.quad(subject2, predicate2, object2));
+// datasetIn.add(t.quad(subject3, predicate3, object3));
+// datasetIn.add(t.quad(subject4, predicate4, object4));
+// datasetIn.add(t.quad(subject5, predicate5, object5));
+
+// // Produce an RDF Dataflow object from the dataset.
+// const
+// dataflowObject = fromDataset(datasetIn),
+
+// // Read the dataset back from Dataflow.
+// datasetOut = toDataset(dataflowObject);
+
+// console.info(`Content type:   "${contentType}"`);
+// console.info(`File extension: "${fileExtension}"`);
+
+// console.group(`RDF dataset written as a Dataflow object:`);
+// console.info(JSON.stringify(dataflowObject, null, 2));
+// console.groupEnd();
+
+// console.group('\nRDF dataset read from the Dataflow object:');
+// for (const quad of datasetOut) {
+//   console.group('Quad:');
+//   if(quad.subject.termType === 'Quad') {
+//     console.group('Subject quad:');
+//     console.info(`Subject:   ${quad.subject.subject.value}`)
+//     console.info(`Predicate: ${quad.subject.predicate.value}`)
+//     console.info(`Object:    ${quad.subject.object.value}`)
+//     console.groupEnd();
+//   } else {
+//     console.info(`Subject:   ${quad.subject.value}`)
+//   }
+//   console.info(`Predicate: ${quad.predicate.value}`)
+//   console.info(`Object:    ${quad.object.value}`)
+//   console.groupEnd();
+// }
+// console.groupEnd();
 ```
 
 Sample output for the code above:
