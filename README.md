@@ -4,24 +4,113 @@
 
 # RDF Dataflow
 
-This JavaScript library introduces:
+**RDF Dataflow** (or **Dataflow** for short) is a JSON-based message format for [RDF](https://www.w3.org/TR/rdf12-concepts/) data.
 
-1. A JSON-based [RDF 1.2](https://www.w3.org/TR/rdf12-concepts/) serialisation format called `RDF Dataflow`.
-1. A serialiser and a deserialiser for `RDF Dataflow` documents. These functions can run on any JavaScript runtime, both in web browsers and outside of them.
+RDF has a dual nature:
 
-## An open format
+- It's a way of representing (semantic) data.
+- It's a new language for machines and software, mainly for those that have AI/LLM capabilities, but not only. Indeed, an RDF statement can be seen as being structured as a subject+verb+object triple, and can be converted to a human language.
 
-`RDF Dataflow` is an open format, and anyone is free to implement serialisers and deserialisers for their preferred runtime:
+Dataflow 2.x fully supports both uses of RDF:
 
-- The `types.mts` file contains a description of this format.
-- The content type of this format is `application/x-rdfdataflow+json`.
-- The file extension for this format is `.rdfdataflow.json`.
+- **A Dataflow message can contain an RDF dataset**, where the order of statements is not significant, and where duplicate statements are just a waste of bandwidth.
+- **A Dataflow message can contain prose whereby machines communicate between them**. Such a message is structured as an ordered array of RDF statements, where the duplication of statements is significant.
 
-## When does `RDF Dataflow` make sense as an RDF serialisation format over other formats?
+## The Dataflow format
 
-`RDF Dataflow` is preferable whenever:
+- `types.mts` describes this format.
+- The content type for Dataflow messages is `application/x-rdfdataflow+json`.
+- The file extension for Dataflow files is `.rdfdataflow.json`.
 
-- RDF 1.2 support is required.
+## Sample Dataflow messages
+
+### A simple message containing a dataset
+
+"<https://site.example/#jim>'s name is Jim."
+
+```json
+{
+  "rdfdataflow": { "version": "2.0" },
+  "dataset": [
+    [
+      { "type: "iri", "value": "https://site.example/#jim" },
+      { "type: "iri", "value": "https://schema.org/givenName" },
+      { "type: "literal", "value": "Jim" }
+    ]
+  ]
+}
+ ```
+
+### A message containing a more complex dataset
+
+Contains a statement about a statement: "<https://site.example/#xyz>'s name is Xyz. <https://site.example/#xyz>'s name is Xyz since 1999-12-25."
+
+```json
+{
+  "rdfdataflow": { "version": "2.0" },
+  "head": {
+    "prefixes": {
+      "ex"    : "https://site.example/",
+      "schema": "https://schema.org/",
+      "xsd"   : "http://www.w3.org/2001/XMLSchema#"
+    }
+  },
+  "dataset": [
+    [
+      { "type": "iri", "value": "ex:xyz" },
+      { "type": "iri", "value": "schema:givenName" },
+      { "type": "literal", "value": "Xyz", "language": "tr" }
+    ],
+    [
+      {
+        "type": "triple",
+        "value": [
+          { "type": "iri", "value": "ex:xyz" },
+          { "type": "iri", "value": "schema:givenName" },
+          { "type": "literal", "value": "Xyz", "language": "tr" }
+        ]
+      },
+      { "type": "iri", "value": "ex:since" },
+      { "type": "literal", "value": "1999-12-25", "datatype": {"type": "iri", "value": "xsd:date" } }
+    ]
+  ]
+}
+ ```
+
+### A message containing prose
+
+"<https://site.example/jimbo>'s name is Jim Bo. <https://site.example/jimbo>'s mailbox is `mailto:jim.bo@site.example`."
+
+```json
+{
+  "rdfdataflow": { "version": "2.0" },
+  "head": {
+    "prefixes": {
+      "ex"  : "https://site.example/",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "xsd" : "http://www.w3.org/2001/XMLSchema#"
+    }
+  },
+  "prose": [
+    [
+      { "type": "iri", "value": "ex:jimbo" },
+      { "type": "iri", "value": "foaf:name" },
+      { "type": "literal", "value": "Jim Bo", "datatype": { "type": "iri", "value": "xsd:string" } }
+    ],
+    [
+      { "type": "iri", "value": "ex:jimbo" },
+      { "type": "iri", "value": "foaf:mbox" },
+      { "type": "literal", "value": "mailto:jim.bo@site.example", "datatype": { "type": "iri", "value": "xsd:anyURI" } }
+    ]
+  ]
+}
+```
+
+## Dataflow compared to other RDF formats
+
+`RDF Dataflow` is suitable whenever:
+
+- RDF 1.2 support is required, in particular whenever making statements about statements should be possible.
 - Serialisers and deserialisers should be easy to implement.
 - Document completeness (= non-truncation) should be easy to verify by examining the document contents.
 
@@ -38,18 +127,20 @@ Where the other RDF formats are currently falling short:
 ## Usage example
 
 <details data-mdrb>
-<summary>RDF dataset to RDF-Dataflow and back.</summary>
+<summary>RDF to Dataflow to JSON and back.</summary>
 
 <pre>
 description = '''
-Serialise an RDF dataset to an RDF-Dataflow object and read it back.
+RDF to Dataflow to JSON and back
 '''
 </pre>
 </details>
 
 ```javascript
 import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
-import {DataflowMessage} from './mod.mjs';
+import { 
+  DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, DataflowMessage 
+} from 'https://esm.sh/gh/doga/rdf-dataflow@v2.0.0/mod.mjs';
 
 const
 datasetFactory = new N3.StoreFactory(),
@@ -169,145 +260,181 @@ prose = message2.toRDF();
 Sample output for the code above:
 
 ```text
-Content type:   "application/x-rdfdataflow+json"
-File extension: ".rdfdataflow.json"
-RDF dataset written as a Dataflow object:
+RDF dataset:
+  Quad:
+    Subject:   https://site.example/xyz
+    Predicate: https://schema.org/givenName
+    Object:    Xyz
+  Quad:
+    Subject quad:
+      Subject:   https://site.example/xyz
+      Predicate: https://schema.org/givenName
+      Object:    Xyz
+    Predicate: https://site.example/since
+    Object:    1999-12-25
+Dataflow message containing an RDF dataset:
+  Statements:
+    Statement:
+      Subject:
+        <https://site.example/xyz>
+      Predicate:
+        <https://schema.org/givenName>
+      Object:
+        "Xyz"@tr
+    Statement:
+      Subject:
+        Triple:
+          Subject:
+            <https://site.example/xyz>
+          Predicate:
+            <https://schema.org/givenName>
+          Object:
+            "Xyz"@tr
+      Predicate:
+        <https://site.example/since>
+      Object:
+        "1999-12-25"^^<http://www.w3.org/2001/XMLSchema#date>
 ```
 
 ```json
-  {
-    "head": {
-      "terms": {
-        "subject": "s",
-        "predicate": "p",
-        "object": "o",
-        "graph": "g"
+{
+  "rdfdataflow": {
+    "version": "2.0"
+  },
+  "head": {
+    "prefixes": {
+      "ex": "https://site.example/",
+      "schema": "https://schema.org/",
+      "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+  },
+  "dataset": [
+    [
+      {
+        "type": "iri",
+        "value": "ex:xyz"
+      },
+      {
+        "type": "iri",
+        "value": "schema:givenName"
+      },
+      {
+        "type": "literal",
+        "value": "Xyz",
+        "language": "tr"
       }
-    },
-    "dataset": [
+    ],
+    [
       {
-        "s": {
-          "type": "quad",
-          "value": {
-            "s": {
-              "type": "uri",
-              "value": "http://site.example/user/123"
-            },
-            "p": {
-              "type": "uri",
-              "value": "http://xmlns.com/foaf/0.1/age"
-            },
-            "o": {
-              "type": "literal",
-              "value": "23",
-              "datatype": "http://www.w3.org/2001/XMLSchema#integer"
-            }
+        "type": "triple",
+        "value": [
+          {
+            "type": "iri",
+            "value": "ex:xyz"
+          },
+          {
+            "type": "iri",
+            "value": "schema:givenName"
+          },
+          {
+            "type": "literal",
+            "value": "Xyz",
+            "language": "tr"
           }
-        },
-        "p": {
-          "type": "uri",
-          "value": "http://site.example/certainty"
-        },
-        "o": {
-          "type": "literal",
-          "value": "0.9",
-          "datatype": "http://www.w3.org/2001/XMLSchema#decimal"
-        }
+        ]
       },
       {
-        "s": {
-          "type": "uri",
-          "value": "http://site.example/user/567"
-        },
-        "p": {
-          "type": "uri",
-          "value": "http://www.w3.org/2006/vcard/ns#hasEmail"
-        },
-        "o": {
-          "type": "uri",
-          "value": "mailto:me@site.example"
-        }
+        "type": "iri",
+        "value": "ex:since"
       },
       {
-        "s": {
-          "type": "uri",
-          "value": "http://site.example/product/1"
-        },
-        "p": {
-          "type": "uri",
-          "value": "http://purl.org/dc/elements/1.1/description"
-        },
-        "o": {
-          "type": "literal",
-          "value": "A product",
-          "lang": "en"
-        }
-      },
-      {
-        "s": {
-          "type": "uri",
-          "value": "http://site.example/product/1"
-        },
-        "p": {
-          "type": "uri",
-          "value": "http://purl.org/dc/elements/1.1/description"
-        },
-        "o": {
-          "type": "literal",
-          "value": "Bir ürün",
-          "datatype": "http://www.w3.org/2001/XMLSchema#string"
-        }
-      },
-      {
-        "s": {
-          "type": "uri",
-          "value": "http://site.example/product/1"
-        },
-        "p": {
-          "type": "uri",
-          "value": "http://purl.org/dc/elements/1.1/description"
-        },
-        "o": {
-          "type": "literal",
-          "value": "منتج",
-          "lang": "ar",
-          "dir": "rtl"
+        "type": "literal",
+        "value": "1999-12-25",
+        "datatype": {
+          "type": "iri",
+          "value": "xsd:date"
         }
       }
     ]
-  }
+  ]
+}
 ```
 
 ```text
-RDF dataset read from the Dataflow object:
-  Quad:
-    Subject quad:
-      Subject:   http://site.example/user/123
-      Predicate: http://xmlns.com/foaf/0.1/age
-      Object:    23
-    Predicate: http://site.example/certainty
-    Object:    0.9
-  Quad:
-    Subject:   http://site.example/user/567
-    Predicate: http://www.w3.org/2006/vcard/ns#hasEmail
-    Object:    mailto:me@site.example
-  Quad:
-    Subject:   http://site.example/product/1
-    Predicate: http://purl.org/dc/elements/1.1/description
-    Object:    A product
-  Quad:
-    Subject:   http://site.example/product/1
-    Predicate: http://purl.org/dc/elements/1.1/description
-    Object:    Bir ürün
-  Quad:
-    Subject:   http://site.example/product/1
-    Predicate: http://purl.org/dc/elements/1.1/description
-    Object:    منتج
+Dataflow message containing prose:
+  Statements:
+    Statement:
+      Subject:
+        <https://site.example/jimbo>
+      Predicate:
+        <http://xmlns.com/foaf/0.1/name>
+      Object:
+        "Jim Bo"^^<http://www.w3.org/2001/XMLSchema#string>
+    Statement:
+      Subject:
+        <https://site.example/jimbo>
+      Predicate:
+        <http://xmlns.com/foaf/0.1/mbox>
+      Object:
+        "mailto:jim.bo@site.example"^^<http://www.w3.org/2001/XMLSchema#anyURI>
+```
+
+```json
+{
+  "rdfdataflow": {
+    "version": "2.0"
+  },
+  "head": {
+    "prefixes": {
+      "ex": "https://site.example/",
+      "foaf": "http://xmlns.com/foaf/0.1/",
+      "xsd": "http://www.w3.org/2001/XMLSchema#"
+    }
+  },
+  "prose": [
+    [
+      {
+        "type": "iri",
+        "value": "ex:jimbo"
+      },
+      {
+        "type": "iri",
+        "value": "foaf:name"
+      },
+      {
+        "type": "literal",
+        "value": "Jim Bo",
+        "datatype": {
+          "type": "iri",
+          "value": "xsd:string"
+        }
+      }
+    ],
+    [
+      {
+        "type": "iri",
+        "value": "ex:jimbo"
+      },
+      {
+        "type": "iri",
+        "value": "foaf:mbox"
+      },
+      {
+        "type": "literal",
+        "value": "mailto:jim.bo@site.example",
+        "datatype": {
+          "type": "iri",
+          "value": "xsd:anyURI"
+        }
+      }
+    ]
+  ]
+}
 ```
 
 ### Running the usage example
 
-Run the example above by typing this in your terminal (requires [Deno](https://deno.com/) 2+):
+Run the code above by typing this in your terminal (requires [Deno](https://deno.com/) 2+):
 
 ```shell
 deno run --allow-net --allow-run --allow-env --allow-read jsr:@andrewbrey/mdrb@3.0.4 --dax=false --mode=isolated 'https://raw.githubusercontent.com/doga/rdf-dataflow/refs/heads/main/README.md'
