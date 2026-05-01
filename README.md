@@ -109,14 +109,17 @@ message = DataflowMessage.fromRDF(
       schema: 'https://schema.org/',
       xsd   : 'http://www.w3.org/2001/XMLSchema#'
     },
+    isProse: true
   }
 );
 
 message.print();
 
-// console.debug(`${message}`);
+const
+messageObject = message.toObject();
 
-// messageObject = message.toObject();
+console.info(JSON.stringify(messageObject, null, 2))
+
 // messageObject = message.toObject(),
 // message2      = DataflowMessage.fromObject(messageObject),
 // dataset2      = message2.toRDF(),
