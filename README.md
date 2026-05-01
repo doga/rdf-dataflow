@@ -80,7 +80,7 @@ turtleData = `
   # "<https://site.example/xyz>'s name is Xyz."
   PREFIX ex: <https://site.example/>
   PREFIX schema: <https://schema.org/>
-  ex:xyz schema:givenName 'Xyz'@tr-TR <urn:my:contacts>. 
+  ex:xyz schema:givenName 'Xyz'@tr. 
 `,
 parser          = new N3.Parser(),
 turtleDataQuads = parser.parse(turtleData);
