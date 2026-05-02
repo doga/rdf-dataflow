@@ -71,7 +71,7 @@ Contains a statement about a statement: "<https://site.example/#xyz>'s name is X
         ]
       },
       { "type": "iri", "value": "ex:since" },
-      { "type": "literal", "value": "1999-12-25", "datatype": {"type": "iri", "value": "xsd:date" } }
+      { "type": "literal", "value": "1999-12-25", "datatype": "xsd:date" }
     ]
   ]
 }
@@ -95,12 +95,12 @@ Contains a statement about a statement: "<https://site.example/#xyz>'s name is X
     [
       { "type": "iri", "value": "ex:jimbo" },
       { "type": "iri", "value": "foaf:name" },
-      { "type": "literal", "value": "Jim Bo", "datatype": { "type": "iri", "value": "xsd:string" } }
+      { "type": "literal", "value": "Jim Bo" }
     ],
     [
       { "type": "iri", "value": "ex:jimbo" },
       { "type": "iri", "value": "foaf:mbox" },
-      { "type": "literal", "value": "mailto:jim.bo@site.example", "datatype": { "type": "iri", "value": "xsd:anyURI" } }
+      { "type": "literal", "value": "mailto:jim.bo@site.example", "datatype": "xsd:anyURI" }
     ]
   ]
 }
