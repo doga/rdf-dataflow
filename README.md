@@ -140,7 +140,7 @@ RDF to Dataflow to JSON and back
 import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
 import { 
   DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, DataflowMessage 
-} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.1/mod.mjs';
+} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.2/mod.mjs';
 
 const
 datasetFactory = new N3.StoreFactory(),
@@ -350,10 +350,7 @@ Dataflow message containing an RDF dataset:
       {
         "type": "literal",
         "value": "1999-12-25",
-        "datatype": {
-          "type": "iri",
-          "value": "xsd:date"
-        }
+        "datatype": "xsd:date"
       }
     ]
   ]
@@ -403,11 +400,7 @@ Dataflow message containing prose:
       },
       {
         "type": "literal",
-        "value": "Jim Bo",
-        "datatype": {
-          "type": "iri",
-          "value": "xsd:string"
-        }
+        "value": "Jim Bo"
       }
     ],
     [
@@ -422,10 +415,7 @@ Dataflow message containing prose:
       {
         "type": "literal",
         "value": "mailto:jim.bo@site.example",
-        "datatype": {
-          "type": "iri",
-          "value": "xsd:anyURI"
-        }
+        "datatype": "xsd:anyURI"
       }
     ]
   ]
