@@ -140,7 +140,7 @@ RDF to Dataflow to JSON and back
 import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
 import { 
   DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, DataflowMessage 
-} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.2/mod.mjs';
+} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.3/mod.mjs';
 
 const
 datasetFactory = new N3.StoreFactory(),
@@ -254,7 +254,39 @@ const
  * @type {Object[]} An array of quads.
  * @see {@link https://rdf.js.org/data-model-spec/#quad-interface | Quad}
  **/
-prose = message2.toRDF();
+prose = message2.toRDF(),
+
+/**
+ * Dataflow message is read from JSON.
+ */
+message3 = DataflowMessage.fromObject(
+  {
+    "rdfdataflow": { "version": "2.0" },
+    "head": {
+      "prefixes": {
+        "ex"  : "https://site.example/",
+        "foaf": "http://xmlns.com/foaf/0.1/",
+        "xsd" : "http://www.w3.org/2001/XMLSchema#"
+      }
+    },
+    "prose": [
+      [
+        {
+          "type" : "triple",
+          "value": [
+            { "type": "iri", "value": "ex:jimbo" },
+            { "type": "iri", "value": "foaf:name" },
+            { "type": "literal", "value": "Jim Bo"}
+          ]
+        },
+        { "type": "iri", "value": "ex:since" },
+        { "type": "literal", "value": "1999-12-25", "datatype": "xsd:date" }
+      ]
+    ]
+  }
+);
+
+message3.print();
 ```
 
 Sample output for the code above:
@@ -420,6 +452,24 @@ Dataflow message containing prose:
     ]
   ]
 }
+```
+
+```text
+Dataflow message containing prose:
+  Statements:
+    Statement:
+      Subject:
+        Triple:
+          Subject:
+            <https://site.example/jimbo>
+          Predicate:
+            <http://xmlns.com/foaf/0.1/name>
+          Object:
+            "Jim Bo"
+      Predicate:
+        <https://site.example/since>
+      Object:
+        "1999-12-25"^^<http://www.w3.org/2001/XMLSchema#date>
 ```
 
 ### Running the usage example

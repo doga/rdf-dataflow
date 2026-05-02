@@ -101,13 +101,14 @@ type PrefixTag = string;
 type IriString = string;
 
 type Statement = Triple | Quad;
-type Triple    = [Subject, Predicate, Object_];
 type Quad      = [Subject, Predicate, Object_, Graph];
+type Triple    = [TripleSubject, Predicate, Object_];
 
-type Subject   = NamedNode | BlankNode | TripleTerm;
-type Predicate = NamedNode;
-type Object_   = NamedNode | BlankNode | Literal;
-type Graph     = NamedNode | BlankNode;
+type Subject       = NamedNode | BlankNode | TripleTerm;
+type TripleSubject = NamedNode | BlankNode;
+type Predicate     = NamedNode;
+type Object_       = NamedNode | BlankNode | Literal;
+type Graph         = NamedNode | BlankNode;
 
 type TripleTerm = {
   type : 'triple',
