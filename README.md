@@ -140,7 +140,8 @@ RDF to Dataflow to JSON and back
 import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
 import { 
   DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, DataflowMessage 
-} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.3/mod.mjs';
+} from './mod.mjs';
+// } from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.3/mod.mjs';
 
 const
 datasetFactory = new N3.StoreFactory(),
@@ -276,7 +277,7 @@ message3 = DataflowMessage.fromObject(
           "value": [
             { "type": "iri", "value": "ex:jimbo" },
             { "type": "iri", "value": "foaf:name" },
-            { "type": "literal", "value": "Jim Bo"}
+            { "type": "literal", "value": "Jim Bo", "language": "en-US"}
           ]
         },
         { "type": "iri", "value": "ex:since" },
@@ -321,7 +322,7 @@ Dataflow message containing an RDF dataset:
           Predicate:
             <https://schema.org/givenName>
           Object:
-            "Xyz"@tr
+            "Xyz"@tr-tr
       Predicate:
         <https://site.example/since>
       Object:
@@ -371,7 +372,7 @@ Dataflow message containing an RDF dataset:
           {
             "type": "literal",
             "value": "Xyz",
-            "language": "tr"
+            "language": "tr-tr"
           }
         ]
       },
@@ -465,7 +466,7 @@ Dataflow message containing prose:
           Predicate:
             <http://xmlns.com/foaf/0.1/name>
           Object:
-            "Jim Bo"
+            "Jim Bo"@en-US
       Predicate:
         <https://site.example/since>
       Object:
