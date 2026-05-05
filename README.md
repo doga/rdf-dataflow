@@ -140,8 +140,7 @@ RDF to Dataflow to JSON and back
 import N3 from 'https://esm.sh/gh/rdfjs/N3.js@v2.0.3/src/index.js';
 import { 
   DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, DataflowMessage 
-} from './mod.mjs';
-// } from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.3/mod.mjs';
+} from 'https://esm.sh/gh/doga/rdf-dataflow@2.0.4/mod.mjs';
 
 const
 datasetFactory = new N3.StoreFactory(),
