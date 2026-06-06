@@ -39,7 +39,7 @@ Dataflow 2.x fully supports both uses of RDF:
     ]
   ]
 }
- ```
+```
 
 ### A message containing a more complex dataset
 
@@ -75,7 +75,7 @@ Contains a statement about a statement: "<https://site.example/#xyz>'s name is X
     ]
   ]
 }
- ```
+```
 
 ### A message containing prose
 
