@@ -4,17 +4,17 @@
 
 # RDF Dataflow
 
-**RDF Dataflow** (or **Dataflow** for short) is a JSON-based message format for [RDF](https://www.w3.org/TR/rdf12-concepts/) data.
+**RDF Dataflow** (or **Dataflow** for short) is a JSON-based message format for [RDF-star](https://graphdb.ontotext.com/documentation/11.3/rdf-sparql-star.html), which is a superset of [RDF 1.1](https://www.w3.org/TR/2014/REC-rdf11-concepts-20140225/).
 
-RDF has a dual nature:
+RDF has a dual purpose here:
 
-- It's a way of representing (semantic) data.
-- It's a new language for machines and software, mainly for those that have AI/LLM capabilities, but not only. Indeed, an RDF statement can be seen as being structured as a subject+verb+object triple, and can be converted to a human language.
+- _Data_ — It's a way of representing (semantic) data. This is the original purpose of RDF.
+- _A language for machines_ — `RDF Dataflow` breaks new ground by introducing the **RDF as language** concept. RDF can serve as a new language for machines and software, mainly for those that have AI/LLM capabilities, but not only. Indeed, an RDF statement can be seen as being structured as a subject+verb+object triple, and can be converted to a human language.
 
 Dataflow 2.x fully supports both uses of RDF:
 
 - **A Dataflow message can contain an RDF dataset**, where the order of statements is not significant, and where duplicate statements are just a waste of bandwidth.
-- **A Dataflow message can contain prose whereby machines communicate between them**. Such a message is structured as an ordered array of RDF statements, where the duplication of statements is significant.
+- **Prose mode** — **Dataflow messages can contain prose whereby machines communicate with each other**. Such a message is structured as an ordered array of RDF statements, where the duplication of statements is significant.
 
 ## The Dataflow format
 
@@ -110,19 +110,21 @@ Contains a statement about a statement: "<https://site.example/#xyz>'s name is X
 
 `RDF Dataflow` is suitable whenever:
 
-- RDF 1.2 support is required, in particular whenever making statements about statements should be possible.
+- RDF-star support is required, in particular whenever making statements about statements should be possible.
 - Serialisers and deserialisers should be easy to implement.
 - Document completeness (= non-truncation) should be easy to verify by examining the document contents.
 
 Where the other RDF formats are currently falling short:
 
-- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF 1.2, and its purpose is to serialise many types of SPARQL results, not only RDF datasets. `RDF Dataflow` is derived from this format.
+- `RDF Dataflow` breaks new ground with its prose mode. All the other RDF formats are only geared toward representing data.
 
-- [JSON-LD](https://www.w3.org/TR/json-ld11/) is another JSON-based format but it does not yet support RDF 1.2 (as of July 2025). This is a terse format and writing serialisers and deserialisers for it is a non-trivial task. RDF 1.2 support is on their roadmap, which will make this format terser still.
+- The [SPARQL 1.1 Query Results JSON Format](https://www.w3.org/TR/sparql11-results-json/) does not support RDF-star, and its purpose is to serialise many types of SPARQL results, not only RDF datasets. `RDF Dataflow` is derived from this format.
 
-- [Turtle](https://www.w3.org/TR/rdf12-turtle/) and [TriG](https://www.w3.org/TR/rdf12-trig/) support RDF 1.2, but  writing serialisers and deserialisers for those formats is non-trivial, and they make it impossible to ensure that a document hasn't been truncated.
+- [JSON-LD](https://www.w3.org/TR/json-ld11/) is another JSON-based format. This format ensures non-truncation, and [RDF-star support is in the works](https://json-ld.github.io/json-ld-star/), but this is a terse and human-unfriendly format for which serialisers and deserialisers are non-trivial to program.
 
-- [N-Quads](https://www.w3.org/TR/rdf12-n-quads/) and [N-Triples](https://w3c.github.io/rdf-n-triples/spec/) support RDF 1.2, but writing serialisers and deserialisers for those formats is somewhat more difficult than for `RDF Dataflow`, and these formats also make it impossible to ensure that a document hasn't been truncated.
+- [Turtle](https://www.w3.org/TR/rdf12-turtle/) and [TriG](https://www.w3.org/TR/rdf12-trig/) support RDF-star, but  writing serialisers and deserialisers for those formats is non-trivial, and they make it impossible to ensure that a document hasn't been truncated, unless a special vocabulary such as [qrmm](https://vocab.qworum.net/#qrmm) is used to ensure content integrity.
+
+- [N-Quads](https://www.w3.org/TR/rdf12-n-quads/) and [N-Triples](https://w3c.github.io/rdf-n-triples/spec/) support RDF-star, but writing serialisers and deserialisers for those formats is somewhat more difficult than for `RDF Dataflow`, and these formats also make it impossible to ensure that a document hasn't been truncated, unless a special vocabulary such as [qrmm](https://vocab.qworum.net/#qrmm) is used to ensure content integrity.
 
 ## Usage example
 
