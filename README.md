@@ -33,9 +33,9 @@ Dataflow 2.x fully supports both uses of RDF:
   "rdfdataflow": { "version": "2.0" },
   "dataset": [
     [
-      { "type: "iri", "value": "https://site.example/#jim" },
-      { "type: "iri", "value": "https://schema.org/givenName" },
-      { "type: "literal", "value": "Jim" }
+      { "type": "iri", "value": "https://site.example/#jim" },
+      { "type": "iri", "value": "https://schema.org/givenName" },
+      { "type": "literal", "value": "Jim" }
     ]
   ]
 }
