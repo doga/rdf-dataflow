@@ -85,7 +85,7 @@ type Dataset = Header & {dataset: Statement[]};
  *   ]
  * }
  * ``` */
-type Prose = Header & {prose: Statement[]};
+type Prose = Header & {prose: ProseStatement[]};
 
 type Header = {
   rdfdataflow: {version: '2.0'},
@@ -101,14 +101,17 @@ type PrefixTag = string;
 type IriString = string;
 
 type Statement = Triple | Quad;
+type Triple    = [Subject, Predicate, Object_];
 type Quad      = [Subject, Predicate, Object_, Graph];
-type Triple    = [TripleSubject, Predicate, Object_];
 
-type Subject       = NamedNode | BlankNode | TripleTerm;
-type TripleSubject = NamedNode | BlankNode;
-type Predicate     = NamedNode;
-type Object_       = NamedNode | BlankNode | Literal;
-type Graph         = NamedNode | BlankNode;
+type ProseStatement = [ProseSubject, Predicate, Object_];
+type ProseSubject   = NamedNode | BlankNode; // in prose, subject must not be a triple term
+
+type Subject   = ProseSubject | TripleTerm;
+type Predicate = NamedNode;
+type Object_   = NamedNode | BlankNode | Literal;
+type Graph     = NamedNode | BlankNode;
+
 
 type TripleTerm = {
   type : 'triple',
@@ -152,7 +155,7 @@ type TypedLiteral = BareLiteral & {datatype: string}; // datatype is an IRI stri
 
 export type {
   DataflowMessage, Dataset, Prose, 
-  Header, Head, Prefixes, PrefixTag, IriString, Statement, Triple, Quad, Subject, Predicate, Object_, Graph, 
+  Header, Head, Prefixes, PrefixTag, IriString, Statement as Statement, Triple, Quad, Subject, Predicate, Object_, Graph, 
   NamedNode, BlankNode, Literal, BareLiteral, LangLiteral, DirLangLiteral, TypedLiteral, TripleTerm,
   rdf 
 };

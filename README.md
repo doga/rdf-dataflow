@@ -13,8 +13,8 @@ RDF has a dual purpose here:
 
 Dataflow 2.x fully supports both uses of RDF:
 
-- **A Dataflow message can contain an RDF dataset**, where the order of statements is not significant, and where duplicate statements are just a waste of bandwidth.
-- **Prose mode** — **Dataflow messages can contain prose whereby machines communicate with each other**. Such a message is structured as an ordered array of RDF statements, where the duplication of statements is significant.
+- **Dataset mode** — A Dataflow message can contain an RDF dataset where the order of statements is not significant, and where duplicate statements are just a waste of bandwidth.
+- **Prose mode** — A Dataflow message can contain prose whereby machines communicate with each other. The main use case is AI-to-AI communication. Such a message is structured as an ordered array of RDF statements, where the duplication of statements is significant.
 
 ## The Dataflow format
 
