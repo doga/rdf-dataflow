@@ -1,10 +1,8 @@
 /**
- * @file The formal definition of the "RDF Dataflow" message format.
+ * @file The specification of the "RDF Dataflow" message format.
  * @author Doğa Armangil <d.armangil@qworum.net>
  * @see {@link https://github.com/doga/rdf-dataflow}
  */
-
-import type * as rdf from './lib/pulled-in/rdfjs/types-v2.0.1/index.d.ts';
 
 type DataflowMessage = Dataset | Prose;
 
@@ -38,7 +36,7 @@ type DataflowMessage = Dataset | Prose;
  *     "prefixes": {
  *       "ex": "https://site.example/#",
  *       "schema": "https://schema.org/",
- *       "xsd": "http://www.w3.org/2001/XMLSchema#"
+ *       "xsd": "http://www.w3.org/2001/XMLSche ma#"
  *     }
  *   },
  *   "dataset": [
@@ -85,7 +83,7 @@ type Dataset = Header & {dataset: Statement[]};
  *   ]
  * }
  * ``` */
-type Prose = Header & {prose: ProseStatement[]};
+type Prose = Header & {prose: Triple[]};
 
 type Header = {
   rdfdataflow: {version: '2.0'},
@@ -101,17 +99,17 @@ type PrefixTag = string;
 type IriString = string;
 
 type Statement = Triple | Quad;
-type Triple    = [Subject, Predicate, Object_];
-type Quad      = [Subject, Predicate, Object_, Graph];
+type Triple    = [Subject, Predicate, Object_] | [ReifyingSubject, ReifyingPredicate, ReifyingObject];
+type Quad      = [Subject, Predicate, Object_, Graph] | [ReifyingSubject, ReifyingPredicate, ReifyingObject, Graph];
 
-type ProseStatement = [ProseSubject, Predicate, Object_];
-type ProseSubject   = NamedNode | BlankNode; // in prose, subject must not be a triple term
-
-type Subject   = ProseSubject | TripleTerm;
+type Subject   = NamedNode | BlankNode | TripleTerm;
 type Predicate = NamedNode;
 type Object_   = NamedNode | BlankNode | Literal;
 type Graph     = NamedNode | BlankNode;
 
+type ReifyingSubject   = NamedNode | BlankNode;
+type ReifyingPredicate = {type: 'iri', value: 'rdf:reifies'}; // rdf and rdfs prefixes are available in all messages
+type ReifyingObject    = TripleTerm;
 
 type TripleTerm = {
   type : 'triple',
@@ -155,7 +153,11 @@ type TypedLiteral = BareLiteral & {datatype: string}; // datatype is an IRI stri
 
 export type {
   DataflowMessage, Dataset, Prose, 
-  Header, Head, Prefixes, PrefixTag, IriString, Statement as Statement, Triple, Quad, Subject, Predicate, Object_, Graph, 
-  NamedNode, BlankNode, Literal, BareLiteral, LangLiteral, DirLangLiteral, TypedLiteral, TripleTerm,
-  rdf 
+  Header, Head, Prefixes, PrefixTag, IriString, 
+  Statement, Triple, Quad, 
+  Subject, Predicate, Object_, Graph, 
+  ReifyingSubject, ReifyingPredicate, ReifyingObject,
+  NamedNode, BlankNode, 
+  Literal, BareLiteral, LangLiteral, DirLangLiteral, TypedLiteral, 
+  TripleTerm,
 };
