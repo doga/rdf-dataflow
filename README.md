@@ -153,6 +153,7 @@ classDiagram
    +serialise() Object
   }
 
+  style DataflowMessage fill:#58251C
   style DatasetMessage fill:#58251C
   style ProseMessage fill:#58251C
 ```
