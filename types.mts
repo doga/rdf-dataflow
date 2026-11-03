@@ -99,17 +99,17 @@ type PrefixTag = string;
 type IriString = string;
 
 type Statement = Triple | Quad;
-type Triple    = [Subject, Predicate, Object_] | [ReifyingSubject, ReifyingPredicate, ReifyingObject];
-type Quad      = [Subject, Predicate, Object_, Graph] | [ReifyingSubject, ReifyingPredicate, ReifyingObject, Graph];
+type Triple    = [Subject, Predicate, Object_]; // | [ReifyingSubject, ReifyingPredicate, ReifyingObject];
+type Quad      = [Subject, Predicate, Object_, Graph]; // | [ReifyingSubject, ReifyingPredicate, ReifyingObject, Graph];
 
 type Subject   = NamedNode | BlankNode | TripleTerm;
 type Predicate = NamedNode;
 type Object_   = NamedNode | BlankNode | Literal;
 type Graph     = NamedNode | BlankNode;
 
-type ReifyingSubject   = NamedNode | BlankNode;
-type ReifyingPredicate = {type: 'iri', value: 'rdf:reifies'}; // rdf and rdfs prefixes are available in all messages
-type ReifyingObject    = TripleTerm;
+// type ReifyingSubject   = NamedNode | BlankNode;
+// type ReifyingPredicate = {type: 'iri', value: 'rdf:reifies'}; // rdf and rdfs prefixes are available in all messages
+// type ReifyingObject    = TripleTerm;
 
 type TripleTerm = {
   type : 'triple',
@@ -156,7 +156,7 @@ export type {
   Header, Head, Prefixes, PrefixTag, IriString, 
   Statement, Triple, Quad, 
   Subject, Predicate, Object_, Graph, 
-  ReifyingSubject, ReifyingPredicate, ReifyingObject,
+  // ReifyingSubject, ReifyingPredicate, ReifyingObject,
   NamedNode, BlankNode, 
   Literal, BareLiteral, LangLiteral, DirLangLiteral, TypedLiteral, 
   TripleTerm,
