@@ -18,9 +18,19 @@ Dataflow 2.x fully supports both uses of RDF:
 
 ## The Dataflow format
 
-- `types.mts` describes this format.
-- The content type for Dataflow messages is `application/x-rdfdataflow+json`.
-- The file extension for Dataflow files is `.rdfdataflow.json`.
+The `types.mts` file describes this format.
+
+### Content type
+
+- The generic content type for Dataflow messages is `application/x-rdfdataflow+json`, meaning that the message can contain either a dataset or prose.
+- The content type for Dataflow messages containing a dataset is `application/x-rdfdataflow-dataset+json`.
+- The content type for Dataflow messages containing prose is `application/x-rdfdataflow-prose+json`.
+
+### File extension
+
+- The generic file extension for Dataflow messages is `.rdfdataflow.json`, meaning that the message can contain either a dataset or prose.
+- The file extension for Dataflow messages containing a dataset is `.rdfdataflow-dataset.json`.
+- The file extension for Dataflow messages containing prose is `.rdfdataflow-prose.json`.
 
 ## Sample Dataflow messages
 
@@ -128,29 +138,30 @@ Where the other RDF formats are currently falling short:
 
 ## Exported classes
 
-Exported classes.
+This library exports 3 classes.`DataflowMessage` is an abstract root class that isn't used directly.
 
 ```mermaid
 classDiagram
   DataflowMessage <|-- DatasetMessage
   DataflowMessage <|-- ProseMessage
   class DataflowMessage {
-   +prefixes: Object
+   -prefixes: Object
+   +addPrefixes(prefixes: Object)
+   +serialise() Object
    +constructor(prefixes: Object)
    +$deserialise(obj) DataflowMessage or null
-   +serialise() Object
   }
   class DatasetMessage {
    +dataset: Object
+   +serialise() Object
    +constructor(dataset: Object, prefixes: Object)
    +$deserialise(obj) DatasetMessage or null
-   +serialise() Object
   }
   class ProseMessage {
    +statements: Object[]
+   +serialise() Object
    +constructor(statements: Object[], prefixes: Object)
    +$deserialise(obj) ProseMessage or null
-   +serialise() Object
   }
 
   style DataflowMessage fill:#58251C
@@ -225,8 +236,7 @@ RDF to Dataflow to JSON and back
 ```javascript
 import {Store, Parser, DataFactory as t} from 'https://unpkg.com/n3@v2.13.12/browser/n3.esm.min.js';
 import { 
-  DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, 
-  DataflowMessage, DatasetwMessage, ProseMessage 
+  DATAFLOW_VERSION, DatasetMessage, ProseMessage 
 } from 'https://cdn.jsdelivr.net/gh/doga/rdf-dataflow@2.0.5/mod.mjs';
 
 run();
