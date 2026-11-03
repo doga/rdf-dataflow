@@ -152,6 +152,9 @@ classDiagram
    +$deserialise(obj) ProseMessage or null
    +serialise() Object
   }
+
+  style DatasetMessage fill:#58251C
+  style ProseMessage fill:#58251C
 ```
 
 ## How it works
