@@ -151,7 +151,7 @@ classDiagram
   DataflowMessage <|-- ProseMessage
   class DataflowMessage {
    -prefixes
-   +$deserialise(obj) DataflowMessage or null
+   +$deserialise(obj) 
    +constructor(prefixes?)
    +addPrefixes(prefixes)
    +serialise() Object
@@ -229,11 +229,11 @@ flowchart TD
 ## Usage example
 
 <details data-mdrb>
-<summary>RDF to Dataflow to JSON and back.</summary>
+<summary>In-memory dataset ➜ In-memory Dataflow message ➜ JSON ➜ In-memory Dataflow message ➜ In-memory dataset.</summary>
 
 <pre>
 description = '''
-RDF to Dataflow to JSON and back
+In-memory dataset ➜ Dataflow message ➜ JSON ➜ Dataflow message ➜ in-memory dataset.
 '''
 </pre>
 </details>
@@ -242,7 +242,7 @@ RDF to Dataflow to JSON and back
 import {Store, Parser, DataFactory as t} from 'https://unpkg.com/n3@v2.13.12/browser/n3.esm.min.js';
 import { 
   DATAFLOW_VERSION, DatasetMessage, ProseMessage 
-} from './mod.mjs';
+} from 'https://cdn.jsdelivr.net/gh/doga/rdf-dataflow@2.0.5/mod.mjs';
 
 run();
 
