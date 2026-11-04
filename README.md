@@ -53,7 +53,7 @@ The `types.mts` file describes this format.
 
 ### A message containing a more complex dataset
 
-Contains a statement about a statement: "<https://site.example/#xyz>'s name is Xyz. <https://site.example/#xyz>'s name is Xyz since 1999-12-25."
+Contains a statement about a statement: "<https://site.example/#hasan>'s name is Hasan. <https://site.example/#hasan>'s name is Hasan since 1999-12-25."
 
 ```json
 {
@@ -67,17 +67,22 @@ Contains a statement about a statement: "<https://site.example/#xyz>'s name is X
   },
   "dataset": [
     [
+      { "type": "iri", "value": "ex:hasan" },
+      { "type": "iri", "value": "schema:givenName" },
+      { "type": "literal", "value": "Hasan", "language": "tr-TR" }
+    ],
+    [
       { "type": "iri", "value": "ex:xyz" },
       { "type": "iri", "value": "schema:givenName" },
-      { "type": "literal", "value": "Xyz", "language": "tr" }
+      { "type": "literal", "value": "سلمان", "language": "ar", "direction": "rtl" }
     ],
     [
       {
         "type": "triple",
         "value": [
-          { "type": "iri", "value": "ex:xyz" },
+          { "type": "iri", "value": "ex:hasan" },
           { "type": "iri", "value": "schema:givenName" },
-          { "type": "literal", "value": "Xyz", "language": "tr" }
+          { "type": "literal", "value": "Hasan", "language": "tr-TR" }
         ]
       },
       { "type": "iri", "value": "ex:since" },
@@ -145,23 +150,23 @@ classDiagram
   DataflowMessage <|-- DatasetMessage
   DataflowMessage <|-- ProseMessage
   class DataflowMessage {
-   -prefixes: Object
-   +addPrefixes(prefixes: Object)
-   +serialise() Object
-   +constructor(prefixes: Object)
+   -prefixes
    +$deserialise(obj) DataflowMessage or null
+   +constructor(prefixes?)
+   +addPrefixes(prefixes)
+   +serialise() Object
   }
   class DatasetMessage {
-   +dataset: Object
-   +serialise() Object
-   +constructor(dataset: Object, prefixes: Object)
+   +dataset
    +$deserialise(obj) DatasetMessage or null
+   +constructor(dataset, prefixes?)
+   +serialise() Object
   }
   class ProseMessage {
-   +statements: Object[]
-   +serialise() Object
-   +constructor(statements: Object[], prefixes: Object)
+   +statements
    +$deserialise(obj) ProseMessage or null
+   +constructor(statements, prefixes?)
+   +serialise() Object
   }
 
   style DataflowMessage fill:#58251C
@@ -212,8 +217,8 @@ flowchart TD
   inMemoryProseMessage -- statements property --> inMemoryRdfStatements
   inMemoryRdfStatements -- new ProseMessage(array, prefixes) --> inMemoryProseMessage
 
-  inMemoryRdfDataset -- N3.js writer --> rdfFile
-  rdfFile -- N3.js parser --> inMemoryRdfDataset
+  inMemoryRdfDataset -- N3.js Writer --> rdfFile
+  rdfFile -- N3.js Parser --> inMemoryRdfDataset
 
   click inMemoryRdfDataset "https://rdf.js.org/dataset-spec/#dataset-interface"
   click inMemoryRdfStatements "https://rdf.js.org/data-model-spec/#quad-interface"
@@ -237,7 +242,7 @@ RDF to Dataflow to JSON and back
 import {Store, Parser, DataFactory as t} from 'https://unpkg.com/n3@v2.13.12/browser/n3.esm.min.js';
 import { 
   DATAFLOW_VERSION, DatasetMessage, ProseMessage 
-} from 'https://cdn.jsdelivr.net/gh/doga/rdf-dataflow@2.0.5/mod.mjs';
+} from './mod.mjs';
 
 run();
 
@@ -272,18 +277,15 @@ function run() {
 
   const 
   // Build a Dataflow message containing a dataset.
-  message = DataflowMessage.fromRDF(
+  message = new DatasetMessage(
     dataset,
     {
-      prefixes: {
-        ex    : 'https://site.example/',
-        schema: 'https://schema.org/',
-        xsd   : 'http://www.w3.org/2001/XMLSchema#'
-      }
+      ex    : 'https://site.example/',
+      schema: 'https://schema.org/',
+      xsd   : 'http://www.w3.org/2001/XMLSchema#'
     }
   );
-  message.print();
-  console.info(JSON.stringify(message.toObject(), null, 2));
+  console.info(JSON.stringify(message.serialise(), null, 2));
 
   const
   /**
@@ -291,11 +293,12 @@ function run() {
    * @type {Object} A DatasetCore object.
    * @see {@link https://rdf.js.org/dataset-spec/#datasetcore-interface | DatasetCore}
    **/
-  rdfDataset = message.toRDF();
+  rdfDataset = message.dataset;
+  console.debug(`rdfDataset.size`, rdfDataset.size)
 
 
   // Build a Dataflow message containing prose.
-  const message2 = DataflowMessage.fromRDF(
+  const message2 = new DatasetMessage(
     // In prose, the order and repetition of statements are significant
     [ 
       // <https://site.example/jimbo>'s name is Jim Bo.
@@ -324,8 +327,7 @@ function run() {
       isProse: true
     }
   );
-  message2.print();
-  console.info(JSON.stringify(message2.toObject(), null, 2));
+  console.info(JSON.stringify(message2.serialise(), null, 2));
 
   const
   /**
@@ -333,14 +335,14 @@ function run() {
    * @type {Object[]} An array of quads.
    * @see {@link https://rdf.js.org/data-model-spec/#quad-interface | Quad}
    **/
-  prose = message2.toRDF(),
+  prose = message2.dataset,
 
   /**
    * Dataflow message is read from JSON.
    */
-  message3 = DataflowMessage.fromObject(
+  message3 = ProseMessage.deserialise(
     {
-      "rdfdataflow": { "version": "2.0" },
+      "rdfdataflow": { "version": "3.0" },
       "head": {
         "prefixes": {
           "ex"  : "https://site.example/",
@@ -364,8 +366,7 @@ function run() {
       ]
     }
   );
-
-  message3.print();
+  console.info(JSON.stringify(message3.serialise(), null, 2));
 }
 
 function displayDataset(dataset) {

@@ -13,17 +13,8 @@
 // export default {toDataset, fromDataset, emptyDataset, emptyDataflow, contentType, fileExtension };
 // export {toDataset, fromDataset, emptyDataset, emptyDataflow, contentType, fileExtension };
 
-import {
-  DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, 
-  DataflowMessage,
+export {
+  DATAFLOW_VERSION, 
+  DataflowMessage, DatasetMessage, ProseMessage,
 } from './lib/dataflow-message.mjs';
 
-export {
-  DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, 
-  DataflowMessage,
-};
-
-export default {
-  DATAFLOW_VERSION, DATAFLOW_CONTENT_TYPE, DATAFLOW_FILE_EXTENSION, 
-  DataflowMessage,
-};
