@@ -150,21 +150,27 @@ classDiagram
   DataflowMessage <|-- DatasetMessage
   DataflowMessage <|-- ProseMessage
   class DataflowMessage {
-   -prefixes
+   +$contentType
+   +$fileExtension
    +$deserialise(obj) 
+   -prefixes
    +constructor(prefixes?)
    +addPrefixes(prefixes)
    +serialise() Object
   }
   class DatasetMessage {
-   +dataset
+   +$contentType
+   +$fileExtension
    +$deserialise(obj) DatasetMessage or null
+   +dataset
    +constructor(dataset, prefixes?)
    +serialise() Object
   }
   class ProseMessage {
-   +statements
+   +$contentType
+   +$fileExtension
    +$deserialise(obj) ProseMessage or null
+   +statements
    +constructor(statements, prefixes?)
    +serialise() Object
   }
