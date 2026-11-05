@@ -40,7 +40,7 @@ The `types.mts` file describes this format.
 
 ```json
 {
-  "rdfdataflow": { "version": "2.0" },
+  "rdfdataflow": { "version": "3.0" },
   "dataset": [
     [
       { "type": "iri", "value": "https://site.example/#jim" },
@@ -57,7 +57,7 @@ Contains a statement about a statement: "<https://site.example/#hasan>'s name is
 
 ```json
 {
-  "rdfdataflow": { "version": "2.0" },
+  "rdfdataflow": { "version": "3.0" },
   "head": {
     "prefixes": {
       "ex"    : "https://site.example/",
@@ -98,7 +98,7 @@ Contains a statement about a statement: "<https://site.example/#hasan>'s name is
 
 ```json
 {
-  "rdfdataflow": { "version": "2.0" },
+  "rdfdataflow": { "version": "3.0" },
   "head": {
     "prefixes": {
       "ex"  : "https://site.example/",
@@ -239,204 +239,80 @@ In-memory dataset ➜ Dataflow message ➜ JSON ➜ Dataflow message ➜ in-memo
 </details>
 
 ```javascript
-import {Store, Parser, DataFactory as t} from 'https://unpkg.com/n3@v2.13.12/browser/n3.esm.min.js';
 import { 
   DATAFLOW_VERSION, DatasetMessage, ProseMessage 
-} from 'https://cdn.jsdelivr.net/gh/doga/rdf-dataflow@2.0.5/mod.mjs';
+} from 'https://cdn.jsdelivr.net/gh/doga/rdf-dataflow@3.0.0/mod.mjs';
+import {
+  Store, Parser, DataFactory as t
+} from 'https://unpkg.com/n3@v2.13.12/browser/n3.esm.min.js';
 
 run();
 
-function run() {
+async function run() {
   const
-  parser   = new Parser(),
+  parser = new Parser(),
 
   // Create an in-memory RDF dataset.
-  dataset  = new Store(),
+  datasetIn = new Store(),
 
-  // Import a Turtle file into the dataset.
-  dataset2 = parser.parse(`
-    # "<https://site.example/xyz>'s name is Xyz."
+  // Read statements written in Turtle format.
+  statements = await parser.parse(`
     PREFIX ex: <https://site.example/>
     PREFIX schema: <https://schema.org/>
-    ex:xyz schema:givenName 'Xyz'@tr. 
-  `);
-  dataset.addAll(dataset2);
-
-  // Programmatically add a statement to the dataset.
-  dataset.add(t.quad( // "<https://site.example/xyz>'s name is Xyz since December 25, 1999."
-    t.triple(
+    ex:xyz schema:givenName 'Hasan'@tr. 
+  `),
+  
+  // Create an in-memory statement.
+  statement = t.quad(
+    t.quad(
       t.namedNode('https://site.example/xyz'),
       t.namedNode('https://schema.org/givenName'),
-      t.literal('Xyz', 'tr-TR')
+      t.literal('Hasan', 'tr')
     ),
     t.namedNode('https://site.example/since'),
     t.literal('1999-12-25', t.namedNode('http://www.w3.org/2001/XMLSchema#date'))
-  ));
-  displayDataset(dataset);
-
+  );
+  
+  // This is equivalent to `dataset.addAll([...statements, statement]);`
+  datasetIn.addAll([...statements, ...statements, statement]);
 
   const 
-  // Build a Dataflow message containing a dataset.
-  message = new DatasetMessage(
-    dataset,
-    {
-      ex    : 'https://site.example/',
-      schema: 'https://schema.org/',
-      xsd   : 'http://www.w3.org/2001/XMLSchema#'
-    }
-  );
-  console.info(JSON.stringify(message.serialise(), null, 2));
+  prefixes = {
+    ex    : 'https://site.example/',
+    schema: 'https://schema.org/',
+    xsd   : 'http://www.w3.org/2001/XMLSchema#'
+  },
 
-  const
-  /**
-   * An RDF dataset read from a Dataflow message.
-   * @type {Object} A DatasetCore object.
-   * @see {@link https://rdf.js.org/dataset-spec/#datasetcore-interface | DatasetCore}
-   **/
-  rdfDataset = message.dataset;
-  console.debug(`rdfDataset.size`, rdfDataset.size)
+  // Dataflow message containing a dataset.
+  datasetMsg     = new DatasetMessage(datasetIn, prefixes),
+  datasetMsgStr  = JSON.stringify(datasetMsg.serialise(), null, 2),
+  datasetMsg2    = DatasetMessage.deserialise(JSON.parse(datasetMsgStr)),
+  datasetMsgStr2 = JSON.stringify(datasetMsg2.serialise(), null, 2),
 
+  // Dataflow message containing prose.
+  proseMsg     = new ProseMessage([...statements, ...statements, statement], prefixes),
+  proseMsgStr  = JSON.stringify(proseMsg.serialise(), null, 2),
+  proseMsg2    = ProseMessage.deserialise(JSON.parse(proseMsgStr)),
+  proseMsgStr2 = JSON.stringify(proseMsg2.serialise(), null, 2);
 
-  // Build a Dataflow message containing prose.
-  const message2 = new DatasetMessage(
-    // In prose, the order and repetition of statements are significant
-    [ 
-      // <https://site.example/jimbo>'s name is Jim Bo.
-      t.quad(
-        t.namedNode('https://site.example/jimbo'),
-        t.namedNode('http://xmlns.com/foaf/0.1/name'),
-        t.literal('Jim Bo')
-      ),
-
-      // <https://site.example/jimbo>'s mailbox is "mailto:jim.bo@site.example".
-      t.quad(
-        t.namedNode('https://site.example/jimbo'),
-        t.namedNode('http://xmlns.com/foaf/0.1/mbox'),
-        t.literal(
-          'mailto:jim.bo@site.example', 
-          t.namedNode('http://www.w3.org/2001/XMLSchema#anyURI')
-        )
-      ),
-    ], 
-    {
-      prefixes: {
-        ex  : 'https://site.example/',
-        foaf: 'http://xmlns.com/foaf/0.1/',
-        xsd : 'http://www.w3.org/2001/XMLSchema#',
-      },
-      isProse: true
-    }
-  );
-  console.info(JSON.stringify(message2.serialise(), null, 2));
-
-  const
-  /**
-   * Prose read from a Dataflow message.
-   * @type {Object[]} An array of quads.
-   * @see {@link https://rdf.js.org/data-model-spec/#quad-interface | Quad}
-   **/
-  prose = message2.dataset,
-
-  /**
-   * Dataflow message is read from JSON.
-   */
-  message3 = ProseMessage.deserialise(
-    {
-      "rdfdataflow": { "version": "3.0" },
-      "head": {
-        "prefixes": {
-          "ex"  : "https://site.example/",
-          "foaf": "http://xmlns.com/foaf/0.1/",
-          "xsd" : "http://www.w3.org/2001/XMLSchema#"
-        }
-      },
-      "prose": [
-        [
-          {
-            "type" : "triple",
-            "value": [
-              { "type": "iri", "value": "ex:jimbo" },
-              { "type": "iri", "value": "foaf:name" },
-              { "type": "literal", "value": "Jim Bo", "language": "en-US"}
-            ]
-          },
-          { "type": "iri", "value": "ex:since" },
-          { "type": "literal", "value": "1999-12-25", "datatype": "xsd:date" }
-        ]
-      ]
-    }
-  );
-  console.info(JSON.stringify(message3.serialise(), null, 2));
-}
-
-function displayDataset(dataset) {
-  console.group('\nRDF dataset:');
-  for (const quad of dataset) {
-    const {subject, predicate, object} = quad;
-    console.group('Quad:');
-    if(subject.termType === 'Quad') {
-      console.group('Subject quad:');
-      console.info(`Subject:   ${subject.subject.value}`)
-      console.info(`Predicate: ${subject.predicate.value}`)
-      console.info(`Object:    ${subject.object.value}`)
-      console.groupEnd();
-    } else {
-      console.info(`Subject:   ${subject.value}`)
-    }
-    console.info(`Predicate: ${predicate.value}`)
-    console.info(`Object:    ${object.value}`)
-    console.groupEnd();
-  }
-  console.groupEnd();
+  console.info('Dataset message (no duplicate statements):', datasetMsgStr);
+  console.info('Prose message (duplicates allowed, order preserved):', proseMsgStr);
+  console.info(`Deserialisation is the reverse of serialisation for Dataset message: `, datasetMsgStr === datasetMsgStr2);
+  console.info(`Deserialisation is the reverse of serialisation for Prose message: `, proseMsgStr === proseMsgStr2);
 }
 ```
 
-Sample output for the code above:
+The output of the code above:
 
 ```text
-RDF dataset:
-  Quad:
-    Subject:   https://site.example/xyz
-    Predicate: https://schema.org/givenName
-    Object:    Xyz
-  Quad:
-    Subject quad:
-      Subject:   https://site.example/xyz
-      Predicate: https://schema.org/givenName
-      Object:    Xyz
-    Predicate: https://site.example/since
-    Object:    1999-12-25
-Dataflow message containing an RDF dataset:
-  Statements:
-    Statement:
-      Subject:
-        <https://site.example/xyz>
-      Predicate:
-        <https://schema.org/givenName>
-      Object:
-        "Xyz"@tr
-    Statement:
-      Subject:
-        Triple:
-          Subject:
-            <https://site.example/xyz>
-          Predicate:
-            <https://schema.org/givenName>
-          Object:
-            "Xyz"@tr-tr
-      Predicate:
-        <https://site.example/since>
-      Object:
-        "1999-12-25"^^<http://www.w3.org/2001/XMLSchema#date>
-```
-
-```json
-{
+Dataset message (no duplicate statements): {
   "rdfdataflow": {
-    "version": "2.0"
+    "version": "3.0"
   },
   "head": {
     "prefixes": {
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
       "ex": "https://site.example/",
       "schema": "https://schema.org/",
       "xsd": "http://www.w3.org/2001/XMLSchema#"
@@ -454,7 +330,7 @@ Dataflow message containing an RDF dataset:
       },
       {
         "type": "literal",
-        "value": "Xyz",
+        "value": "Hasan",
         "language": "tr"
       }
     ],
@@ -472,8 +348,8 @@ Dataflow message containing an RDF dataset:
           },
           {
             "type": "literal",
-            "value": "Xyz",
-            "language": "tr-tr"
+            "value": "Hasan",
+            "language": "tr"
           }
         ]
       },
@@ -489,36 +365,16 @@ Dataflow message containing an RDF dataset:
     ]
   ]
 }
-```
-
-```text
-Dataflow message containing prose:
-  Statements:
-    Statement:
-      Subject:
-        <https://site.example/jimbo>
-      Predicate:
-        <http://xmlns.com/foaf/0.1/name>
-      Object:
-        "Jim Bo"^^<http://www.w3.org/2001/XMLSchema#string>
-    Statement:
-      Subject:
-        <https://site.example/jimbo>
-      Predicate:
-        <http://xmlns.com/foaf/0.1/mbox>
-      Object:
-        "mailto:jim.bo@site.example"^^<http://www.w3.org/2001/XMLSchema#anyURI>
-```
-
-```json
-{
+Prose message (duplicates allowed, order preserved): {
   "rdfdataflow": {
-    "version": "2.0"
+    "version": "3.0"
   },
   "head": {
     "prefixes": {
+      "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
       "ex": "https://site.example/",
-      "foaf": "http://xmlns.com/foaf/0.1/",
+      "schema": "https://schema.org/",
       "xsd": "http://www.w3.org/2001/XMLSchema#"
     }
   },
@@ -526,52 +382,66 @@ Dataflow message containing prose:
     [
       {
         "type": "iri",
-        "value": "ex:jimbo"
+        "value": "ex:xyz"
       },
       {
         "type": "iri",
-        "value": "foaf:name"
+        "value": "schema:givenName"
       },
       {
         "type": "literal",
-        "value": "Jim Bo"
+        "value": "Hasan",
+        "language": "tr"
       }
     ],
     [
       {
         "type": "iri",
-        "value": "ex:jimbo"
+        "value": "ex:xyz"
       },
       {
         "type": "iri",
-        "value": "foaf:mbox"
+        "value": "schema:givenName"
       },
       {
         "type": "literal",
-        "value": "mailto:jim.bo@site.example",
-        "datatype": "xsd:anyURI"
+        "value": "Hasan",
+        "language": "tr"
+      }
+    ],
+    [
+      {
+        "type": "triple",
+        "value": [
+          {
+            "type": "iri",
+            "value": "ex:xyz"
+          },
+          {
+            "type": "iri",
+            "value": "schema:givenName"
+          },
+          {
+            "type": "literal",
+            "value": "Hasan",
+            "language": "tr"
+          }
+        ]
+      },
+      {
+        "type": "iri",
+        "value": "ex:since"
+      },
+      {
+        "type": "literal",
+        "value": "1999-12-25",
+        "datatype": "xsd:date"
       }
     ]
   ]
 }
-```
-
-```text
-Dataflow message containing prose:
-  Statements:
-    Statement:
-      Subject:
-        Triple:
-          Subject:
-            <https://site.example/jimbo>
-          Predicate:
-            <http://xmlns.com/foaf/0.1/name>
-          Object:
-            "Jim Bo"@en-US
-      Predicate:
-        <https://site.example/since>
-      Object:
-        "1999-12-25"^^<http://www.w3.org/2001/XMLSchema#date>
+Deserialisation is the reverse of serialisation for Dataset message:  true
+Deserialisation is the reverse of serialisation for Prose message:  true
 ```
 
 ### Running the usage example
